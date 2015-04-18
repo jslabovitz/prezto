@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 #
 # Executes commands at the start of an interactive session.
 #
@@ -11,3 +12,42 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+
+setopt interactive_comments
+unsetopt correct_all
+
+bindkey '^R' history-incremental-search-backward
+
+#
+# Aliases
+#
+
+function can {
+  type -p $1 2>&1 >/dev/null
+}
+
+alias make='make -w'
+alias ssh='ssh -C'
+alias h=history
+alias j=jobs
+alias m=$PAGER
+
+if [ $DARWIN ]; then
+  alias l='ls -lh -G'
+else
+  alias l='ls -lh --color=auto'
+fi
+
+if [ $DARWIN ]; then
+  alias ls='ls -F -G'
+elif [ $LINUX ]; then
+  alias ls='ls -F --color=auto'
+fi
+
+function lsd {
+  for i in $*; do
+    (du -sh "$i"; echo; find "$i" -ls | sed -E 's/^[0-9]+ [0-9 ]+//') 2>&1 | m
+  done
+}
+
+alias r='reset; tset'

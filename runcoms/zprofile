@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 #
 # Executes commands at login pre-zshrc.
 #
@@ -5,20 +6,37 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
-#
-# Browser
-#
+function can {
+  type -p $1 2>&1 >/dev/null
+}
 
 if [[ "$OSTYPE" == darwin* ]]; then
-  export BROWSER='open'
+  DARWIN=1
+else
+  LINUX=1
 fi
+
+# #
+# # Browser
+# #
+
+# if [[ "$OSTYPE" == darwin* ]]; then
+#   export BROWSER='open'
+# fi
 
 #
 # Editors
 #
 
-export EDITOR='nano'
-export VISUAL='nano'
+if [ $DARWIN ]; then
+  export EDITOR='subl --new-window'
+  export GIT_EDITOR="$EDITOR --wait"
+  export VISUAL=$EDITOR
+else
+  export EDITOR='vim'
+  export VISUAL='vim'
+fi
+
 export PAGER='less'
 
 #
@@ -42,10 +60,36 @@ typeset -gU cdpath fpath mailpath path
 # )
 
 # Set the list of directories that Zsh searches for programs.
-path=(
-  /usr/local/{bin,sbin}
-  $path
-)
+
+#FIXME: needed?
+if [[ -d ~/.rbenv ]]; then
+  path=(
+    ~/.rbenv
+    $path
+  )
+fi
+
+if [[ -d /usr/local ]]; then
+  path=(
+    /usr/local/{bin,sbin}
+    $path
+  )
+fi
+
+# #FIXME: needed?
+# if can brew; then
+#   path=(
+#     $(/usr/local/bin/brew --prefix ruby)/bin
+#     $path
+#   )
+# fi
+
+if [[ -d ~/bin ]]; then
+  path=(
+    ~/bin
+    $path
+  )
+fi
 
 #
 # Less
@@ -54,7 +98,8 @@ path=(
 # Set the default Less options.
 # Mouse-wheel scrolling has been disabled by -X (disable screen clearing).
 # Remove -X and -F (exit if the content fits on one screen) to enable it.
-export LESS='-F -g -i -M -R -S -w -X -z-4'
+# export LESS='-F -g -i -M -R -S -w -X -z-4'
+export LESS='--clear-screen --quit-at-eof --ignore-case --LONG-PROMPT --squeeze-blank-lines --QUIET --RAW-CONTROL-CHARS'
 
 # Set the Less input preprocessor.
 # Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
@@ -72,3 +117,12 @@ if [[ ! -d "$TMPDIR" ]]; then
 fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
+
+# #FIXME: needed?
+# #
+# # setup rbenv
+# #
+
+# if can rbenv; then
+#   eval "$(rbenv init -)"
+# fi
